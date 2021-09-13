@@ -8,82 +8,82 @@
 import SwiftUI
 
 struct ContentView: View {
-    @State private var checkAmount = ""
-    @State private var numberOfPeople = "2"
-    @State private var tipPercenttage = 2 //table index
-    @State private var saleTaxPercenttage = "8.63" //percentage
+    @State private var input = ""
+    @State private var metricSelection = 0
 
-    let tipPercentages = [10, 15, 20, 25, 0]
+    enum metrics: String, CaseIterable { case celsius, fahrenheit, kelvin}
+    let temperateMetrics = metrics.allCases.map {$0.rawValue}
 
-    var totoalTax: Double {
-        let orderAmount = Double(checkAmount) ?? 0
-        let salesTaxPercent = (Double(saleTaxPercenttage) ?? 0 ) / 100
-
-        let salesTaxAmount = orderAmount * salesTaxPercent
-        return salesTaxAmount
+    var resultFromCelsius: Double {
+        let userInput = Double(input) ?? 0
+        let userSelectedMetric = metrics(rawValue: temperateMetrics[metricSelection])
+        switch userSelectedMetric {
+        case .fahrenheit:
+            let toFahrenheit = 32 + userInput * 9 / 5
+            return toFahrenheit
+        case .kelvin:
+            let toKelvin = 273.15 + userInput
+            return toKelvin
+        default:
+            return userInput
+        }
     }
 
-    var totoalAmount: Double {
-        let tipSelection = Double(tipPercentages[tipPercenttage])
-        let orderAmount = Double(checkAmount) ?? 0
-
-        let tipValue = orderAmount / 100 * tipSelection
-        let grandTotal = orderAmount + tipValue + totoalTax
-        return grandTotal
+    var resultFromFahrenheit: Double {
+        let userInput = Double(input) ?? 0
+        let userSelectedMetric = metrics(rawValue: temperateMetrics[metricSelection])
+        switch userSelectedMetric {
+        case .celsius:
+            let toCelsius = (userInput - 32) * 5 / 9
+            return toCelsius
+        case .kelvin:
+            let toKelvin = 273.15 + (userInput - 32) * 5 / 9
+            return toKelvin
+        default:
+            return userInput
+        }
     }
 
-    var totoalPerPerson: Double {
-        let peopleCount = Double(numberOfPeople) ?? 0
-        let amountPerPerson = totoalAmount / peopleCount
-        return amountPerPerson
+    var resultFromKelvin: Double {
+        let userInput = Double(input) ?? 0
+        let userSelectedMetric = metrics(rawValue: temperateMetrics[metricSelection])
+        switch userSelectedMetric {
+        case .celsius:
+            let toCelsius = userInput - 273.15
+            return toCelsius
+        case .fahrenheit:
+            let toFahrenheit = 32 + (userInput - 273.15) * 9 / 5
+            return toFahrenheit
+        default:
+            return userInput
+        }
     }
+
 
     var body: some View {
         NavigationView {
             Form {
-                Section {
-                    TextField("Amount", text: $checkAmount)
+                Section(header:Text("Input")) {
+                    TextField("temperate", text: $input)
                         .keyboardType(.decimalPad)
-
-                    TextField("Number of People", text: $numberOfPeople)
-                        .keyboardType(.decimalPad)
-
-//                    Picker("Number of people", selection: $numberOfPeole){
-//                        ForEach(2 ..< 100){
-//                            Text("\($0) people")
-//                        }
-//                    }
-
-                    HStack{
-                        Text("Sales Tax% ")
-                        Spacer()
-                        TextField("Sales Tax Percentage", text: $saleTaxPercenttage)
-                            .keyboardType(.decimalPad)
-                    }
                 }
 
-                Section(header: Text("How much tip do you want to leave?")) {
-                    Picker("Tip Percentage", selection: $tipPercenttage) {
-                        ForEach(0 ..< tipPercentages.count) {
-                            Text("\(self.tipPercentages[$0])%")
+                Section(header: Text("Convering to?")) {
+                    Picker("metrics:", selection: $metricSelection) {
+                        ForEach(0 ..< metrics.allCases.count) {
+                            Text("\(self.temperateMetrics[$0])")
                         }
                     }
                     .pickerStyle(SegmentedPickerStyle())
                 }
 
-                Section(header:Text("Total tax")) {
-                    Text("$\(totoalTax, specifier: "%.2f")")
-                }
-
-                Section(header:Text("Total amount")) {
-                    Text("$\(totoalAmount, specifier: "%.2f")")
-                }
-
-                Section(header:Text("Amount per person")) {
-                    Text("$\(totoalPerPerson, specifier: "%.2f")")
+                Section(header:Text("result")) {
+                    Text("\(input) celsius to \(temperateMetrics[metricSelection]): \(resultFromCelsius, specifier: "%.2f")")
+                    Text("\(input) fahrenheit to \(temperateMetrics[metricSelection]): \(resultFromFahrenheit, specifier: "%.2f")")
+                    Text("\(input) kelvin to \(temperateMetrics[metricSelection]): \(resultFromKelvin, specifier: "%.2f")")
                 }
             }
-            .navigationBarTitle("WeSplit")
+            .navigationBarTitle("Convert Temperature")
         }
     }
 }
