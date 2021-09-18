@@ -38,6 +38,11 @@ struct ContentView: View {
         return amountPerPerson
     }
 
+    // if 0% tip, change tip text to red
+    var noTip : Bool {
+        tipPercentages[tipPercenttage] == 0 ? true : false
+    }
+
     var body: some View {
         NavigationView {
             Form {
@@ -73,6 +78,7 @@ struct ContentView: View {
 
                 Section(header:Text("Total tax")) {
                     Text("$\(totoalTax, specifier: "%.2f")")
+                        .foregroundColor(noTip ? .red : .black)
                 }
 
                 Section(header:Text("Total amount")) {
